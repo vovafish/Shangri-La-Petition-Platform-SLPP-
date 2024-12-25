@@ -1,13 +1,14 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link href="{% static 'css/output.css' %}" rel="stylesheet"> <!-- Updated -->
 </head>
 <body>
-    <h1>Home</h1>
+    <h1 class="text-3xl font-bold">Home</h1> <!-- Example Tailwind class -->
     <p>Shangri-La Petition Platform</p>
-    
 </body>
 </html>

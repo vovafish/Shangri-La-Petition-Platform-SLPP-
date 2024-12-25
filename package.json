@@ -1,0 +1,18 @@
+{
+  "name": "shangri-la-petition-platform-slpp-",
+  "version": "1.0.0",
+  "description": "Name: Shangri-La Petition Platform (SLPP)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tailwindcss -i ./slpp/static/css/style.css -o ./slpp/static/css/output.css --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17"
+  }
+}
