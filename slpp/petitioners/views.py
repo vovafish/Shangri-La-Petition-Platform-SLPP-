@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.contrib import messages
 from django.utils import timezone
 from .models import Petitioners
+from petitions.models import BioID
 from .forms import RegistrationForm, LoginForm
 from django.contrib.auth.hashers import make_password, check_password
 
@@ -14,22 +15,36 @@ def register(request):
             fullname = form.cleaned_data['fullname']
             dob = form.cleaned_data['dob']
             password = form.cleaned_data['password']
-            bioid = form.cleaned_data['bioid']
+            bioid_code = form.cleaned_data['bioid']
 
-            # Hash the password
-            password_hash = make_password(password)
+            # Check if the BioID exists and is not used
+            try:
+                bioid = BioID.objects.get(code=bioid_code)
+                if bioid.used >= 1:
+                    messages.error(request, "This BioID has already been used.")
+                    return render(request, 'register.html', {'form': form})
 
-            # Create a new user
-            petitioner = Petitioners(
-                petitioner_email=email,
-                fullname=fullname,
-                dob=dob,
-                password_hash=password_hash,
-                bioid=bioid
-            )
-            petitioner.save()  # Save the new user to the database
-            messages.success(request, "Registration successful! You can now log in.")
-            return redirect('login')  # Redirect to the login page after successful registration
+                # Hash the password
+                password_hash = make_password(password)
+
+                # Create a new user
+                petitioner = Petitioners(
+                    petitioner_email=email,
+                    fullname=fullname,
+                    dob=dob,
+                    password_hash=password_hash,
+                    bioid=bioid_code
+                )
+                petitioner.save()  # Save the new user to the database
+
+                # Update the BioID usage
+                bioid.used += 1
+                bioid.save()
+
+                messages.success(request, "Registration successful! You can now log in.")
+                return redirect('login')  # Redirect to the login page after successful registration
+            except BioID.DoesNotExist:
+                messages.error(request, "Invalid BioID provided.")
         else:
             # Debugging: Print form errors
             print(form.errors)  # Print errors to the console
