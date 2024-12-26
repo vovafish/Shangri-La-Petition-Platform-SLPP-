@@ -50,7 +50,8 @@ def login(request):
                 if check_password(password, petitioner.password_hash):
                     # Successful login
                     request.session['petitioner_email'] = email  # Store email in session
-                    return redirect('dashboard')  # Redirect to the dashboard
+                    messages.success(request, "Login successful!")
+                    return redirect('home')  # Redirect to home.html after successful login
                 else:
                     messages.error(request, "Invalid email or password.")
             except Petitioners.DoesNotExist:
@@ -58,3 +59,12 @@ def login(request):
     else:
         form = LoginForm()
     return render(request, 'login.html', {'form': form})
+
+def logout(request):
+    # Clear the session
+    request.session.flush()  # This will delete all session data
+    messages.success(request, "You have been logged out.")
+    return redirect('login')  # Redirect to the login page after logout
+
+def home(request):
+    return render(request, 'home.html')  # Render your home.html template

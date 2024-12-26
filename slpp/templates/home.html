@@ -4,11 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link href="{% static 'css/output.css' %}" rel="stylesheet"> <!-- Updated -->
+    <title>Home</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}"> <!-- Link to your custom CSS -->
 </head>
 <body>
-    <h1 class="text-3xl font-bold">Home</h1> <!-- Example Tailwind class -->
-    <p>Shangri-La Petition Platform</p>
+    <h1>Welcome to the Home Page!</h1>
+    <p>You are logged in as {{ request.session.petitioner_email }}</p>
+    <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>  <!-- Logout button -->
 </body>
 </html>
