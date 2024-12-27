@@ -7,13 +7,28 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/styles.css' %}"> <!-- Link to your custom CSS -->
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"> <!-- Tailwind CSS CDN -->
+    <style>
+        .errorlist {
+            color: red; /* Style error messages in red */
+            margin-top: 0.5rem; /* Add some spacing */
+        }
+    </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="bg-white p-8 rounded-lg shadow-md w-96">
         <h1 class="text-2xl font-bold mb-6 text-center">Register</h1>
-        <form method="post">
+        <form method="post" action="{% url 'register' %}">
             {% csrf_token %}
-            {{ form.as_p|safe }}  <!-- Renders the form fields -->
+            {{ form.as_p }}  <!-- This will render the form fields -->
+
+            {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
             <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">Register</button>
         </form>
         <p class="mt-4 text-center">Already have an account? <a href="{% url 'login' %}" class="text-blue-500 hover:underline">Login here</a></p>

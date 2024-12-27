@@ -45,6 +45,7 @@ def register(request):
                 return redirect('login')  # Redirect to the login page after successful registration
             except BioID.DoesNotExist:
                 messages.error(request, "Invalid BioID provided.")
+                return render(request, 'register.html', {'form': form})
         else:
             # Debugging: Print form errors
             print(form.errors)  # Print errors to the console
