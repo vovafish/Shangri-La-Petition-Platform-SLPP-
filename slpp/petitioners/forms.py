@@ -33,3 +33,8 @@ class RegistrationForm(forms.Form):
 class LoginForm(forms.Form):
     petitioner_email = forms.EmailField()
     password = forms.CharField(widget=forms.PasswordInput())
+
+class PetitionForm(forms.Form):
+    petitioner_email = forms.EmailField(max_length=100, required=True)
+    title = forms.CharField(max_length=100, required=True)
+    content = forms.CharField(widget=forms.Textarea, required=True)
