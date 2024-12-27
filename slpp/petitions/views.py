@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
 from .models import Petition  # Import the Petition model
 from petitioners.forms import PetitionForm  # Import the PetitionForm
@@ -17,10 +17,10 @@ def petitions(request):
 
     return render(request, 'petitions.html', {'petitions': petitions})  # Pass data to template
 
-def open_petitions(request):
-    # Fetch all open petitions
-    open_petitions = Petition.objects.filter(status__iexact='open')  # Filter petitions with status 'open' (case insensitive)
-    return render(request, 'open_petitions.html', {'petitions': open_petitions})  # Pass data to template
+# def open_petitions(request):
+#     # Fetch all open petitions
+#     open_petitions = Petition.objects.filter(status__iexact='open')  # Filter petitions with status 'open' (case insensitive)
+#     return render(request, 'open_petitions.html', {'petitions': open_petitions})  # Pass data to template
 
 def create_petition(request):
     if request.method == 'POST':
@@ -40,3 +40,17 @@ def create_petition(request):
     else:
         form = PetitionForm()
     return render(request, 'create_petition.html', {'form': form})  # Render the form template
+
+def sign_petition(request, petition_id):
+    if request.method == 'POST':
+        try:
+            petition = Petition.objects.get(petition_id=petition_id)
+            if petition.status.lower() == 'open':
+                petition.signature_count += 1  # Increment the signature count
+                petition.save()  # Save the updated petition
+                return HttpResponse(status=204)  # No content response
+            else:
+                return HttpResponse("This petition is not open for signing.", status=400)
+        except Petition.DoesNotExist:
+            return HttpResponse("Petition does not exist.", status=404)
+    return HttpResponse("Invalid request method.", status=405)
