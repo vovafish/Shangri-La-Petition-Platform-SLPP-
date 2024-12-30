@@ -14,10 +14,6 @@
         <form id="petitionForm" method="POST">
             {% csrf_token %}
             <div class="mb-4">
-                <label for="petitioner_email" class="block text-sm font-medium text-gray-700">Petitioner Email:</label>
-                <input type="email" name="petitioner_email" id="petitioner_email" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" required>
-            </div>
-            <div class="mb-4">
                 <label for="title" class="block text-sm font-medium text-gray-700">Title:</label>
                 <input type="text" name="title" id="title" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" required>
             </div>
@@ -32,9 +28,7 @@
 
     <script>
         $(document).ready(function() {
-            console.log('jQuery loaded');
             $('#petitionForm').on('submit', function(e) {
-                console.log('Form submitted');
                 e.preventDefault();
 
                 $.ajax({
@@ -45,7 +39,6 @@
                         'X-CSRFToken': $('input[name=csrfmiddlewaretoken]').val()
                     },
                     data: {
-                        'petitioner_email': $('#petitioner_email').val(),
                         'title': $('#title').val(),
                         'content': $('#content').val()
                     },
@@ -53,7 +46,7 @@
                         if (response.status === 'success') {
                             window.location.href = "{% url 'petition_list' %}";
                         } else {
-                            alert("An error occurred while creating the petition.");
+                            alert("An error occurred while creating the petition: " + response.errors);
                         }
                     },
                     error: function(xhr) {

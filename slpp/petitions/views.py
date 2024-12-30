@@ -32,7 +32,7 @@ def create_petition(request):
         form = PetitionForm(request.POST)
         if form.is_valid():
             new_petition = Petition(
-                petitioner_email=form.cleaned_data['petitioner_email'],
+                petitioner_email=request.session['petitioner_email'],
                 title=form.cleaned_data['title'],
                 content=form.cleaned_data['content'],
                 status='open',
@@ -43,8 +43,12 @@ def create_petition(request):
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({'status': 'success'})
             return redirect('petition_list')
+        else:
+            # Debugging: Print form errors
+            print(form.errors)  # Print errors to the console
+            return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
     else:
-        form = PetitionForm(initial={'petitioner_email': request.session.get('petitioner_email')})
+        form = PetitionForm()
     return render(request, 'create_petition.html', {'form': form})
 
 def sign_petition(request, petition_id):
