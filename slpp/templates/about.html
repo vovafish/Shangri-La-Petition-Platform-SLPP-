@@ -1,14 +1,10 @@
-<!DOCTYPE html>
-{% load static %}
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link href="{% static 'css/output.css' %}" rel="stylesheet"> <!-- Updated -->
-</head>
-<body>
-    <h1 class="text-3xl font-bold">About</h1> <!-- Example Tailwind class -->
-    <p>Shangri-La Petition Platform</p>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}About{% endblock %}
+
+{% block content %}
+    <div class="bg-white shadow-md rounded-lg p-8">
+        <h1 class="text-3xl font-bold mb-4">About</h1>
+        <p class="text-gray-600">Shangri-La Petition Platform</p>
+    </div>
+{% endblock %}

@@ -1,9 +1,11 @@
 from django.http import HttpResponse, Http404, JsonResponse
 from django.shortcuts import render, redirect
-from .models import Petition  # Import the Petition model
+from .models import Petition  # Import the Petition model from the current app
+from signatures.models import PetitionSignature  # Import the PetitionSignature model from the signatures app
 from petitioners.forms import PetitionForm  # Import the PetitionForm
 from django.db import connection
 from .decorators import jwt_required
+from petitioners.models import Petitioners  # Import the Petitioners model from the petitioners app
 
 def petitions(request):
     # Check if the 'status' query parameter is present
@@ -16,12 +18,15 @@ def petitions(request):
         # Fetch all records from the petitions table
         petitions = Petition.objects.all()  # Retrieve all petitions
 
-    return render(request, 'petitions.html', {'petitions': petitions})  # Pass data to template
+    # Create a dictionary to hold signed petition statuses
+    signed_petitions = {}
+    user_email = request.session.get('petitioner_email')
+    
+    if user_email:
+        signed_petition_ids = PetitionSignature.objects.filter(petitioner_email__petitioner_email=user_email).values_list('petition_id', flat=True)
+        signed_petitions = {petition_id: True for petition_id in signed_petition_ids}
 
-# def open_petitions(request):
-#     # Fetch all open petitions
-#     open_petitions = Petition.objects.filter(status__iexact='open')  # Filter petitions with status 'open' (case insensitive)
-#     return render(request, 'open_petitions.html', {'petitions': open_petitions})  # Pass data to template
+    return render(request, 'petitions.html', {'petitions': petitions, 'signed_petitions': signed_petitions})  # Pass data to template
 
 @jwt_required
 def create_petition(request):
@@ -51,16 +56,34 @@ def create_petition(request):
         form = PetitionForm()
     return render(request, 'create_petition.html', {'form': form})
 
+@jwt_required
 def sign_petition(request, petition_id):
     if request.method == 'POST':
+        user_email = request.session.get('petitioner_email')
         try:
             petition = Petition.objects.get(petition_id=petition_id)
-            if petition.status.lower() == 'open':
-                petition.signature_count += 1  # Increment the signature count
-                petition.save()  # Save the updated petition
-                return HttpResponse(status=204)  # No content response
-            else:
-                return HttpResponse("This petition is not open for signing.", status=400)
+
+            # Check if the user is trying to sign their own petition
+            if petition.petitioner_email == user_email:
+                return JsonResponse({"error": "You cannot sign your own petition."}, status=400)
+
+            # Check if the user has already signed this petition
+            if PetitionSignature.objects.filter(petitioner_email__petitioner_email=user_email, petition_id=petition).exists():
+                return JsonResponse({"error": "You have already signed this petition."}, status=400)
+
+            # Retrieve the Petitioners instance
+            petitioner_instance = Petitioners.objects.get(petitioner_email=user_email)
+
+            # Create a new signature record
+            PetitionSignature.objects.create(petitioner_email=petitioner_instance, petition_id=petition)
+
+            # Increment the signature count
+            petition.signature_count += 1
+            petition.save()
+
+            return JsonResponse({"status": "success"})
         except Petition.DoesNotExist:
-            return HttpResponse("Petition does not exist.", status=404)
-    return HttpResponse("Invalid request method.", status=405)
+            return JsonResponse({"error": "Petition does not exist."}, status=404)
+        except Petitioners.DoesNotExist:
+            return JsonResponse({"error": "Petitioner does not exist."}, status=404)
+    return JsonResponse({"error": "Invalid request method."}, status=405)

@@ -1,15 +1,14 @@
-<!DOCTYPE html>
-{% load static %}
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}"> <!-- Link to your custom CSS -->
-</head>
-<body>
-    <h1>Welcome to the Home Page!</h1>
-    <p>You are logged in as {{ request.session.petitioner_email }}</p>
-    <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>  <!-- Logout button -->
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+    <div class="bg-white shadow-md rounded-lg p-8">
+        <h1 class="text-3xl font-bold mb-4">Welcome to the Home Page!</h1>
+        {% if request.session.petitioner_email %}
+            <p class="text-gray-600 mb-4">You are logged in as {{ request.session.petitioner_email }}</p>
+        {% else %}
+            <p class="text-gray-600 mb-4">Please login to create and sign petitions.</p>
+        {% endif %}
+    </div>
+{% endblock %}

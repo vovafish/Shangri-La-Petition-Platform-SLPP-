@@ -1,17 +1,12 @@
-<!DOCTYPE html>
-{% load static %}
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Open Petitions</title>
-    <link href="{% static 'css/output.css' %}" rel="stylesheet"> <!-- Link to your custom CSS -->
-</head>
-<body class="bg-gray-100 p-6">
-    <h1 class="text-3xl font-bold mb-6">Open Petitions</h1> <!-- Title -->
-    <div>
+{% extends 'base.html' %}
+
+{% block title %}Open Petitions{% endblock %}
+
+{% block content %}
+    <h1 class="text-3xl font-bold mb-6">Open Petitions</h1>
+    <div class="space-y-4">
         {% for petition in petitions %}
-            <div class="bg-white border border-gray-300 rounded-lg p-4 mb-4 shadow-md">
+            <div class="bg-white border border-gray-300 rounded-lg p-4 shadow-md">
                 <h2 class="text-xl font-semibold text-gray-800">Petition ID: {{ petition.petition_id }} - {{ petition.title }}</h2>
                 <p class="text-gray-600"><strong>Petitioner:</strong> {{ petition.petitioner_email }}</p>
                 <p class="text-gray-600"><strong>Content:</strong> {{ petition.content }}</p>
@@ -23,7 +18,4 @@
             <p class="text-gray-600">No open petitions available.</p>
         {% endfor %}
     </div>
-    <a href="{% url 'petition_list' %}" class="inline-block mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">See All Petitions</a> <!-- Button to see all petitions -->
-    <a href="{% url 'home' %}" class="inline-block mt-4 text-blue-500 hover:underline">Back to Home</a>  <!-- Link back to the home page -->
-</body>
-</html> 
+{% endblock %} 

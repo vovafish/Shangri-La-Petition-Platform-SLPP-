@@ -1,15 +1,11 @@
-<!DOCTYPE html>
-{% load static %}
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Petitions</title>
-    <link href="{% static 'css/output.css' %}" rel="stylesheet"> <!-- Link to your custom CSS -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Include jQuery -->
-</head>
-<body class="bg-gray-100 p-6">
-    <h1 class="text-3xl font-bold mb-6">Petitions</h1> <!-- Title -->
+{% extends 'base.html' %}
+{% load petition_tags %}
+
+{% block title %}Petitions{% endblock %}
+
+{% block content %}
+    {% csrf_token %}
+    <h1 class="text-3xl font-bold mb-6">Petitions</h1>
     
     <div class="mb-4">
         {% if request.GET.status == 'open' %}
@@ -30,38 +26,67 @@
                 <p class="text-gray-600"><strong>Signatures:</strong> <span class="signature-count">{{ petition.signature_count }}</span></p>
                 
                 {% if petition.status|lower == "open" %}
-                    <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 sign-petition" data-id="{{ petition.petition_id }}">Sign Petition</button>
+                    {% if petition.petitioner_email == request.session.petitioner_email %}
+                        <button class="px-4 py-2 rounded bg-gray-300 cursor-not-allowed" disabled>
+                            This is your petition
+                        </button>
+                    {% else %}
+                        <button class="px-4 py-2 rounded sign-petition 
+                            {% if signed_petitions|get_item:petition.petition_id %} 
+                                bg-gray-500 cursor-not-allowed 
+                            {% else %} 
+                                bg-green-500 hover:bg-green-600 
+                            {% endif %}" 
+                            data-id="{{ petition.petition_id }}"
+                            {% if signed_petitions|get_item:petition.petition_id %} disabled {% endif %}>
+                            {% if signed_petitions|get_item:petition.petition_id %}
+                                Signed
+                            {% else %}
+                                Sign Petition
+                            {% endif %}
+                        </button>
+                    {% endif %}
                 {% endif %}
             </div>
         {% empty %}
             <p class="text-gray-600">No petitions available.</p>
         {% endfor %}
     </div>
-    <a href="{% url 'create_petition' %}" class="inline-block mt-4 text-blue-500 hover:underline">Create a New Petition</a>
 
     <script>
-        $(document).ready(function() {
-            $('.sign-petition').click(function(e) {
-                e.preventDefault(); // Prevent the default button action
-                var petitionId = $(this).data('id'); // Get the petition ID
-
-                $.ajax({
-                    url: "{% url 'sign_petition' '0' %}".replace('0', petitionId), // Update the URL with the petition ID
-                    type: 'POST',
-                    data: {
-                        'csrfmiddlewaretoken': '{{ csrf_token }}' // Include CSRF token
-                    },
-                    success: function(response) {
-                        // Update the signature count on success
-                        var countElement = $('#petition-' + petitionId + ' .signature-count');
-                        countElement.text(parseInt(countElement.text()) + 1); // Increment the count
-                    },
-                    error: function(xhr) {
-                        alert("An error occurred while signing the petition.");
-                    }
-                });
+    $(document).ready(function() {
+        $('.sign-petition').on('click', function() {
+            const button = $(this);
+            const petitionId = button.data('id');
+            
+            $.ajax({
+                url: `/slpp/petitions/sign/${petitionId}/`,
+                type: 'POST',
+                headers: {
+                    'X-CSRFToken': $('input[name=csrfmiddlewaretoken]').val(),
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function(response) {
+                    // Update button state
+                    button.prop('disabled', true);
+                    button.text('Signed');
+                    
+                    // Change button color to gray
+                    button.removeClass('bg-green-500 hover:bg-green-600');
+                    button.addClass('bg-gray-500 cursor-not-allowed');
+                    
+                    // Update signature count
+                    const countElement = button.closest('.shadow-md').find('.signature-count');
+                    const currentCount = parseInt(countElement.text());
+                    countElement.text(currentCount + 1);
+                },
+                error: function(xhr) {
+                    console.log(xhr);
+                    const response = xhr.responseJSON || { error: "An unknown error occurred." };
+                    alert(response.error || "An error occurred while signing the petition.");
+                }
             });
         });
+    });
     </script>
-</body>
-</html>
+{% endblock %}

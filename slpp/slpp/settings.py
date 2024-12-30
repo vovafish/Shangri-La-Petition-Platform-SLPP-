@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'petitioners',
     'rest_framework',
     'rest_framework_simplejwt',
+    'signatures',
 ]
 
 MIDDLEWARE = [
