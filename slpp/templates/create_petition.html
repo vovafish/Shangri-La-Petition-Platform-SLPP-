@@ -5,12 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Petition</title>
-    <link href="{% static 'css/output.css' %}" rel="stylesheet"> <!-- Link to your custom CSS -->
+    <link href="{% static 'css/output.css' %}" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-6">
     <div class="bg-white shadow-md rounded-lg p-8 w-full max-w-md">
         <h1 class="text-2xl font-bold mb-6 text-center">Create a New Petition</h1>
-        <form method="post">
+        <form id="petitionForm" method="POST">
             {% csrf_token %}
             <div class="mb-4">
                 <label for="petitioner_email" class="block text-sm font-medium text-gray-700">Petitioner Email:</label>
@@ -28,5 +29,44 @@
         </form>
         <a href="{% url 'petition_list' %}" class="inline-block mt-4 text-blue-500 hover:underline text-center w-full">Back to Petitions</a>
     </div>
+
+    <script>
+        $(document).ready(function() {
+            console.log('jQuery loaded');
+            $('#petitionForm').on('submit', function(e) {
+                console.log('Form submitted');
+                e.preventDefault();
+
+                $.ajax({
+                    url: "{% url 'create_petition' %}",
+                    type: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': $('input[name=csrfmiddlewaretoken]').val()
+                    },
+                    data: {
+                        'petitioner_email': $('#petitioner_email').val(),
+                        'title': $('#title').val(),
+                        'content': $('#content').val()
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            window.location.href = "{% url 'petition_list' %}";
+                        } else {
+                            alert("An error occurred while creating the petition.");
+                        }
+                    },
+                    error: function(xhr) {
+                        console.log(xhr);
+                        if (xhr.status === 401) {
+                            window.location.href = "{% url 'login' %}";
+                        } else {
+                            alert("An error occurred while creating the petition.");
+                        }
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

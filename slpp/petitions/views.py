@@ -1,8 +1,9 @@
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, JsonResponse
 from django.shortcuts import render, redirect
 from .models import Petition  # Import the Petition model
 from petitioners.forms import PetitionForm  # Import the PetitionForm
 from django.db import connection
+from .decorators import jwt_required
 
 def petitions(request):
     # Check if the 'status' query parameter is present
@@ -22,24 +23,29 @@ def petitions(request):
 #     open_petitions = Petition.objects.filter(status__iexact='open')  # Filter petitions with status 'open' (case insensitive)
 #     return render(request, 'open_petitions.html', {'petitions': open_petitions})  # Pass data to template
 
+@jwt_required
 def create_petition(request):
+    if not request.session.get('petitioner_email'):
+        return redirect('login')
+        
     if request.method == 'POST':
         form = PetitionForm(request.POST)
         if form.is_valid():
-            # Create a new petition instance
             new_petition = Petition(
                 petitioner_email=form.cleaned_data['petitioner_email'],
                 title=form.cleaned_data['title'],
                 content=form.cleaned_data['content'],
-                status='open',  # Automatically set status to 'open'
-                response='',  # Leave response empty
-                signature_count=0  # Set signature count to 0
+                status='open',
+                response='',
+                signature_count=0
             )
-            new_petition.save()  # Save the new petition to the database
-            return redirect('petition_list')  # Redirect to the list of petitions after creation
+            new_petition.save()
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'status': 'success'})
+            return redirect('petition_list')
     else:
-        form = PetitionForm()
-    return render(request, 'create_petition.html', {'form': form})  # Render the form template
+        form = PetitionForm(initial={'petitioner_email': request.session.get('petitioner_email')})
+    return render(request, 'create_petition.html', {'form': form})
 
 def sign_petition(request, petition_id):
     if request.method == 'POST':
