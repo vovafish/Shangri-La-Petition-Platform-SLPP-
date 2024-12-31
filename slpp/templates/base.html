@@ -24,6 +24,7 @@
                         <span class="text-gray-600 px-3">{{ request.session.petitioner_email }}</span>
                         <a href="{% url 'logout' %}" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">Logout</a>
                     {% else %}
+                        <a href="javascript:void(0);" onclick="window.location.href='{% url 'login' %}';" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md">Create Petition</a>
                         <a href="{% url 'login' %}" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Login</a>
                         <a href="{% url 'register' %}" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">Register</a>
                     {% endif %}
