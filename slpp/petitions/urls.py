@@ -1,8 +1,12 @@
 from django.urls import path
-from .views import petitions, create_petition, sign_petition  # Import the sign_petition view
+from . import views
 
 urlpatterns = [
-    path('', petitions, name='petition_list'),  # This will match /slpp/petitions/
-    path('create/', create_petition, name='create_petition'),  # This will match /slpp/petitions/create/
-    path('sign/<int:petition_id>/', sign_petition, name='sign_petition'),  # This will match /slpp/petitions/sign/<petition_id>/
+    path('', views.petitions, name='petition_list'),  # This will match /slpp/petitions/
+    path('create/', views.create_petition, name='create_petition'),  # This will match /slpp/petitions/create/
+    path('sign/<int:petition_id>/', views.sign_petition, name='sign_petition'),  # This will match /slpp/petitions/sign/<petition_id>/
+    path('admin/login/', views.admin_login, name='admin_login'),
+    path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path('admin/threshold/update/', views.update_threshold, name='update_threshold'),
+    path('admin/petition/response/<int:petition_id>/', views.add_petition_response, name='add_petition_response'),  # This will match /slpp/petitions/sign/<petition_id>/
 ]

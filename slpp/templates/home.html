@@ -5,10 +5,12 @@
 {% block content %}
     <div class="bg-white shadow-md rounded-lg p-8">
         <h1 class="text-3xl font-bold mb-4">Welcome to the Home Page!</h1>
-        {% if request.session.petitioner_email %}
+        {% if request.session.admin_email %}
+            <p class="text-gray-600 mb-4">You are logged in as Admin: {{ request.session.admin_email }}</p>
+        {% elif request.session.petitioner_email %}
             <p class="text-gray-600 mb-4">You are logged in as {{ request.session.petitioner_email }}</p>
         {% else %}
-            <p class="text-gray-600 mb-4">Please login to create and sign petitions.</p>
+            <p class="text-gray-600 mb-4">Welcome! Please log in to create and sign petitions.</p>
         {% endif %}
     </div>
 {% endblock %}

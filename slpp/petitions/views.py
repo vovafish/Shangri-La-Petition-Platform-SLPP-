@@ -1,11 +1,14 @@
 from django.http import HttpResponse, Http404, JsonResponse
 from django.shortcuts import render, redirect
-from .models import Petition  # Import the Petition model from the current app
+from .models import Petition, AdminSettings  # Import the Petition model from the current app
 from signatures.models import PetitionSignature  # Import the PetitionSignature model from the signatures app
 from petitioners.forms import PetitionForm  # Import the PetitionForm
+from .forms import ThresholdUpdateForm, PetitionResponseForm, AdminLoginForm  # Import the PetitionForm
 from django.db import connection
 from .decorators import jwt_required
 from petitioners.models import Petitioners  # Import the Petitioners model from the petitioners app
+from django.contrib.auth.hashers import check_password
+from django.contrib import messages
 
 def petitions(request):
     # Check if the 'status' query parameter is present
@@ -91,3 +94,69 @@ def sign_petition(request, petition_id):
         except Petitioners.DoesNotExist:
             return JsonResponse({"error": "Petitioner does not exist."}, status=404)
     return JsonResponse({"error": "Invalid request method."}, status=405)
+
+@jwt_required
+def admin_dashboard(request):
+    if request.session.get('admin_email') != 'admin@petition.parliament.sr':
+        return redirect('admin_login')
+
+    # Get current threshold
+    admin_settings = AdminSettings.objects.first()
+    threshold = admin_settings.signature_threshold if admin_settings else 100
+
+    # Get petitions that reached threshold
+    threshold_petitions = Petition.objects.filter(
+    signature_count__gte=threshold,
+    status='open'
+    ).select_related() 
+
+    return render(request, 'admin_dashboard.html', {
+        'threshold': threshold,
+        'threshold_petitions': threshold_petitions
+    })
+
+@jwt_required
+def update_threshold(request):
+    if request.method == 'POST':
+        form = ThresholdUpdateForm(request.POST)
+        if form.is_valid():
+            admin_settings = AdminSettings.objects.first()
+            admin_settings.signature_threshold = form.cleaned_data['signature_threshold']
+            admin_settings.save()
+            return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'error'}, status=400)
+
+@jwt_required
+def add_petition_response(request, petition_id):
+    if request.method == 'POST':
+        form = PetitionResponseForm(request.POST)
+        if form.is_valid():
+            petition = Petition.objects.get(petition_id=petition_id)
+            petition.response = form.cleaned_data['response']
+            petition.status = 'closed'
+            petition.save()
+            return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'error'}, status=400)
+
+def admin_login(request):
+    if request.method == 'POST':
+        form = AdminLoginForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password']
+            
+            try:
+                admin_settings = AdminSettings.objects.first()
+                if (email == admin_settings.admin_email and 
+                    check_password(password, admin_settings.password_hash)):
+                    request.session['admin_email'] = email
+                    return redirect('admin_dashboard')
+                else:
+                    messages.error(request, "Invalid credentials.")
+            except AdminSettings.DoesNotExist:
+                messages.error(request, "Admin settings not found.")
+        
+        return render(request, 'admin_login.html', {'form': form})
+    else:
+        form = AdminLoginForm()
+        return render(request, 'admin_login.html', {'form': form})

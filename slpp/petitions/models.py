@@ -25,3 +25,13 @@ class Petition(models.Model):
 
     def __str__(self):
         return self.title  # Return the title for easy identification
+
+class AdminSettings(models.Model):
+    signature_threshold = models.IntegerField(default=100)
+    admin_email = models.EmailField(default='admin@petition.parliament.sr')
+    password_hash = models.TextField()  # Store hashed admin password
+
+    class Meta:
+        db_table = 'admin_settings'
+        managed = False
+  
