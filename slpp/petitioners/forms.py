@@ -2,7 +2,10 @@ from django import forms
 
 class RegistrationForm(forms.Form):
     petitioner_email = forms.EmailField(
-        widget=forms.EmailInput(attrs={'class': 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2'}),
+        widget=forms.EmailInput(attrs={
+            'class': 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2',
+            'placeholder': 'user@example.com'
+        }),
         error_messages={
             'required': 'Email is required.',
             'invalid': 'Enter a valid email address.',
