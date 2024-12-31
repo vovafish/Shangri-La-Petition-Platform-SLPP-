@@ -38,8 +38,12 @@ class RegistrationForm(forms.Form):
     )
 
 class LoginForm(forms.Form):
-    petitioner_email = forms.EmailField()
-    password = forms.CharField(widget=forms.PasswordInput())
+    petitioner_email = forms.EmailField(
+        widget=forms.EmailInput(attrs={'class': 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2'})
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2'})
+    )
 
 class PetitionForm(forms.Form):
     title = forms.CharField(max_length=100, required=True)
