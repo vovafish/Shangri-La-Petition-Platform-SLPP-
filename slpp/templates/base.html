@@ -29,7 +29,8 @@
                         <a href="{% url 'register' %}" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">Register</a>
                     {% endif %}
                     {% if request.session.admin_email %}
-                        <span class="text-gray-600 px-3"> {{ request.session.admin_email }}</span>
+                        <span class="text-gray-600 px-3">{{ request.session.admin_email }}</span>
+                        <a href="{% url 'admin_dashboard' %}" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"> Dashboard</a>
                     {% elif request.session.petitioner_email %}
                         <span class="text-gray-600 px-3">{{ request.session.petitioner_email }}</span>
                     {% endif %}

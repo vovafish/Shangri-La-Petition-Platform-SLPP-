@@ -4,6 +4,9 @@
 <div class="max-w-4xl mx-auto p-6">
     <h1 class="text-2xl font-bold mb-6">Admin Dashboard</h1>
     
+    <!-- Success Message for Threshold Update -->
+    <div id="success-message" class="hidden text-green-500 mb-4"></div>
+
     <!-- Threshold Update Form -->
     <div class="bg-white p-6 rounded-lg shadow-md mb-6">
         <h2 class="text-xl font-semibold mb-4">Update Signature Threshold</h2>
@@ -16,6 +19,9 @@
             </button>
         </form>
     </div>
+
+    <!-- Success Message for Response Submission -->
+    <div id="response-message" class="hidden text-green-500 mb-4"></div>
 
     <!-- Petitions Requiring Response -->
     <div class="bg-white p-6 rounded-lg shadow-md">
@@ -57,14 +63,14 @@
                 },
                 success: function(response) {
                     if (response.status === 'success') {
-                        alert("Threshold updated successfully!");
+                        $('#success-message').text("Threshold updated successfully!").removeClass('hidden');
                     } else {
-                        alert("Error updating threshold.");
+                        $('#success-message').text("Error updating threshold.").removeClass('hidden').css('color', 'red');
                     }
                 },
                 error: function(xhr) {
                     console.log(xhr);
-                    alert("An error occurred while updating the threshold.");
+                    $('#success-message').text("An error occurred while updating the threshold.").removeClass('hidden').css('color', 'red');
                 }
             });
         });
@@ -87,15 +93,15 @@
                 },
                 success: function(response) {
                     if (response.status === 'success') {
-                        alert("Response submitted successfully!");
+                        $('#response-message').text("Response submitted successfully!").removeClass('hidden');
                         location.reload(); // Refresh the page to show updated status
                     } else {
-                        alert("Error submitting response.");
+                        $('#response-message').text("Error submitting response.").removeClass('hidden').css('color', 'red');
                     }
                 },
                 error: function(xhr) {
                     console.log(xhr);
-                    alert("An error occurred while submitting the response.");
+                    $('#response-message').text("An error occurred while submitting the response.").removeClass('hidden').css('color', 'red');
                 }
             });
         });
