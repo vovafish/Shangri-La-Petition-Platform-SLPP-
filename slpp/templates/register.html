@@ -9,6 +9,12 @@
             <form method="post" action="{% url 'register' %}">
                 {% csrf_token %}
                 {{ form.as_p }}
+                <div class="mb-4">
+                    <label for="bioid" class="block text-sm font-medium text-gray-700">BioID:</label>
+                    <input type="text" name="bioid" id="bioid" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" required>
+                    <button type="button" id="scan-qr" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Scan QR Code</button>
+                    <div id="reader" class="mt-4" style="width: 300px;"></div>
+                </div>
                 {% if messages %}
                     <ul class="mb-4">
                         {% for message in messages %}
@@ -21,4 +27,25 @@
             <p class="mt-4 text-center text-gray-600">Already have an account? <a href="{% url 'login' %}" class="text-blue-500 hover:underline">Login here</a></p>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('scan-qr').addEventListener('click', function() {
+                const html5QrcodeScanner = new Html5QrcodeScanner(
+                    "reader", 
+                    { 
+                        fps: 10,
+                        qrbox: 250
+                    }
+                );
+
+                html5QrcodeScanner.render((decodedText, decodedResult) => {
+                    document.getElementById('bioid').value = decodedText;
+                    html5QrcodeScanner.clear();
+                }, (errorMessage) => {
+                    console.warn(`QR Code scan error: ${errorMessage}`);
+                });
+            });
+        });
+    </script>
 {% endblock %}
