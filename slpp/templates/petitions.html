@@ -83,7 +83,12 @@
                 error: function(xhr) {
                     console.log(xhr);
                     const response = xhr.responseJSON || { error: "An unknown error occurred." };
-                    alert(response.error || "An error occurred while signing the petition.");
+                    if (xhr.status === 401) {
+                        // Redirect to the login page
+                        window.location.href = "{% url 'login' %}";
+                    } else {
+                        alert(response.error || "An error occurred while signing the petition.");
+                    }
                 }
             });
         });

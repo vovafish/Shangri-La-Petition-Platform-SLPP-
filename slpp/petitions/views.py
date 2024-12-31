@@ -60,6 +60,10 @@ def create_petition(request):
 def sign_petition(request, petition_id):
     if request.method == 'POST':
         user_email = request.session.get('petitioner_email')
+        
+        if not user_email:
+            return JsonResponse({"error": "You must be logged in to sign a petition."}, status=401)
+
         try:
             petition = Petition.objects.get(petition_id=petition_id)
 
