@@ -13,13 +13,18 @@ from django.contrib import messages
 def petitions(request):
     # Check if the 'status' query parameter is present
     status = request.GET.get('status')
-    
+    sort_order = request.GET.get('sort', 'latest')  # Default to 'latest'
+
     if status and status.lower() == 'open':
-        # Fetch all open petitions
-        petitions = Petition.objects.filter(status__iexact='open')  # Filter petitions with status 'open' (case insensitive)
+        petitions = Petition.objects.filter(status__iexact='open')
     else:
-        # Fetch all records from the petitions table
-        petitions = Petition.objects.all()  # Retrieve all petitions
+        petitions = Petition.objects.all()
+
+    # Sort petitions based on user selection
+    if sort_order == 'oldest':
+        petitions = petitions.order_by('created_at')  # Oldest first
+    else:
+        petitions = petitions.order_by('-created_at')  # Latest first
 
     # Create a dictionary to hold signed petition statuses
     signed_petitions = {}
@@ -61,12 +66,12 @@ def create_petition(request):
 
 @jwt_required
 def sign_petition(request, petition_id):
+    if not request.session.get('petitioner_email'):
+        return JsonResponse({"error": "Authentication required"}, status=401)
+
     if request.method == 'POST':
         user_email = request.session.get('petitioner_email')
         
-        if not user_email:
-            return JsonResponse({"error": "You must be logged in to sign a petition."}, status=401)
-
         try:
             petition = Petition.objects.get(petition_id=petition_id)
 

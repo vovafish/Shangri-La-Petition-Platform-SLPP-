@@ -18,6 +18,7 @@ class Petition(models.Model):
     status = models.CharField(max_length=45)
     response = models.TextField(blank=True, null=True)
     signature_count = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)  # Automatically set on creation
 
     class Meta:
         db_table = 'petitions'
