@@ -3,14 +3,28 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-    <div class="bg-white shadow-md rounded-lg p-8">
-        <h1 class="text-3xl font-bold mb-4">Welcome to the Home Page!</h1>
-        {% if request.session.admin_email %}
-            <p class="text-gray-600 mb-4">You are logged in as Admin: {{ request.session.admin_email }}</p>
-        {% elif request.session.petitioner_email %}
-            <p class="text-gray-600 mb-4">You are logged in as {{ request.session.petitioner_email }}</p>
-        {% else %}
-            <p class="text-gray-600 mb-4">Welcome! Please log in to create and sign petitions.</p>
-        {% endif %}
+<div class="bg-white shadow-md rounded-lg p-8 w-full max-w-7xl mx-auto mt-10">
+    <h1 class="text-4xl font-bold mb-4 text-center">Welcome to the SLPP Platform!</h1>
+    
+    {% if request.session.admin_email %}
+        <p class="text-xl text-gray-600 mb-4 text-center">You are logged in as Admin: <strong>{{ request.session.admin_email }}</strong></p>
+    {% elif request.session.petitioner_email %}
+        <p class="text-xl text-gray-600 mb-4 text-center">Welcome back, <strong>{{ request.session.petitioner_email }}</strong>!</p>
+    {% else %}
+        <p class="text-xl text-gray-600 mb-4 text-center">Welcome! Please log in to create and sign petitions.</p>
+    {% endif %}
+
+    <div class="mt-6 text-center">
+        <h2 class="text-2xl font-semibold mb-2">Quick Info</h2>
+        <p class="text-lg text-gray-700">Currently, there are <strong>{{ open_petition_count }}</strong> open petitions.</p>
+        <p class="text-lg text-gray-700">Total signatures received: <strong>{{ total_signatures }}</strong></p>
     </div>
+
+    <div class="mt-8 text-center">
+        <h2 class="text-2xl font-semibold mb-2">Get Involved!</h2>
+        <p class="text-lg text-gray-700 mb-4">Join the movement by signing or creating a petition today!</p>
+        <a href="{% url 'create_petition' %}" class="bg-blue-500 text-white px-6 py-3 rounded-md hover:bg-blue-600 transition duration-300">Create a Petition</a>
+        <a href="{% url 'petition_list' %}?status=open" class="ml-4 bg-green-500 text-white px-6 py-3 rounded-md hover:bg-green-600 transition duration-300">View Open Petitions</a>
+    </div>
+</div>
 {% endblock %}
