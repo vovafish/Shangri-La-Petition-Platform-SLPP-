@@ -77,10 +77,16 @@ def login(request):
     return render(request, 'login.html', {'form': form})
 
 def logout(request):
+    # Clear all existing messages first
+    storage = messages.get_messages(request)
+    storage.used = True  # Mark all current messages as used
+    
     # Clear the session
-    request.session.flush()  # This will delete all session data
+    request.session.flush()
+    
+    # Add only the logout message
     messages.success(request, "You have been logged out.")
-    return redirect('login')  # Redirect to the login page after logout
+    return redirect('login')
 
 def home(request):
     return render(request, 'home.html')  # Render your home.html template
