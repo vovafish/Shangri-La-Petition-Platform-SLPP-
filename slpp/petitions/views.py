@@ -165,3 +165,35 @@ def admin_login(request):
     else:
         form = AdminLoginForm()
         return render(request, 'admin_login.html', {'form': form})
+
+def user_dashboard(request):
+    if not request.session.get('petitioner_email'):
+        return redirect('login')
+    
+    user_email = request.session.get('petitioner_email')
+    filter_type = request.GET.get('filter', 'all')  # Default to 'all'
+    
+    # Get user's created petitions
+    created_petitions = Petition.objects.filter(petitioner_email=user_email)
+    
+    # Get user's signed petitions
+    signed_petitions = Petition.objects.filter(
+        petitionsignature__petitioner_email__petitioner_email=user_email
+    )
+    
+    # Filter based on user selection
+    if filter_type == 'created':
+        petitions = created_petitions
+    elif filter_type == 'signed':
+        petitions = signed_petitions
+    else:  # 'all'
+        petitions = (created_petitions | signed_petitions).distinct()
+    
+    context = {
+        'petitions': petitions,
+        'filter_type': filter_type,
+        'created_count': created_petitions.count(),
+        'signed_count': signed_petitions.count()
+    }
+    
+    return render(request, 'user_dashboard.html', context)

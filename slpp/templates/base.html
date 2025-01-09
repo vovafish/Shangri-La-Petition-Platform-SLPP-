@@ -25,6 +25,7 @@
                         <a href="{% url 'logout' %}" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">Logout</a>
                     {% elif request.session.petitioner_email %}
                         <a href="{% url 'create_petition' %}" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md">Create Petition</a>
+                        <a href="{% url 'user_dashboard' %}" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Dashboard</a>
                         <a href="{% url 'logout' %}" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">Logout</a>
                         <span class="text-gray-600 px-3">{{ request.session.petitioner_email }}</span>
                     {% else %}

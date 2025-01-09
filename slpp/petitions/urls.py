@@ -9,4 +9,5 @@ urlpatterns = [
     path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('admin/threshold/update/', views.update_threshold, name='update_threshold'),
     path('admin/petition/response/<int:petition_id>/', views.add_petition_response, name='add_petition_response'),  # This will match /slpp/petitions/sign/<petition_id>/
+    path('user/dashboard/', views.user_dashboard, name='user_dashboard'),
 ]
