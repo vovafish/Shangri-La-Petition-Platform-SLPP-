@@ -2,8 +2,7 @@ from django import forms
 
 class AdminLoginForm(forms.Form):
     email = forms.EmailField(
-        widget=forms.EmailInput(attrs={'class': 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2'}),
-        initial='admin@petition.parliament.sr'
+        widget=forms.EmailInput(attrs={'class': 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2'})
     )
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={'class': 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2'})

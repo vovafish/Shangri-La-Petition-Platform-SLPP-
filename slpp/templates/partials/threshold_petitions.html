@@ -1,0 +1,15 @@
+{% for petition in threshold_petitions %}
+    <div class="border-b border-gray-200 py-4" data-petition-id="{{ petition.petition_id }}">
+        <h3 class="font-semibold">{{ petition.title }}</h3>
+        <p class="text-gray-600">Signatures: {{ petition.signature_count }}</p>
+        <form class="response-form mt-4" data-petition-id="{{ petition.petition_id }}">
+            {% csrf_token %}
+            <textarea name="response" class="w-full border rounded p-2" rows="4"></textarea>
+            <button type="submit" class="mt-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                Submit Response
+            </button>
+        </form>
+    </div>
+{% empty %}
+    <p class="text-gray-600">No petitions currently require response.</p>
+{% endfor %}

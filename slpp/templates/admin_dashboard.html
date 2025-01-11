@@ -24,17 +24,16 @@
     <div id="response-message" class="hidden text-green-500 mb-4"></div>
 
     <!-- Petitions Requiring Response -->
-    <div class="bg-white p-6 rounded-lg shadow-md">
+    <div id="threshold-petitions" class="mt-6">
         <h2 class="text-xl font-semibold mb-4">Petitions Requiring Response</h2>
         {% for petition in threshold_petitions %}
-            <div class="border-b border-gray-200 py-4">
+            <div class="border-b border-gray-200 py-4" data-petition-id="{{ petition.petition_id }}">
                 <h3 class="font-semibold">{{ petition.title }}</h3>
                 <p class="text-gray-600">Signatures: {{ petition.signature_count }}</p>
                 <form class="response-form mt-4" data-petition-id="{{ petition.petition_id }}">
                     {% csrf_token %}
                     <textarea name="response" class="w-full border rounded p-2" rows="4"></textarea>
-                    <button type="submit" data-petition-id="{{ petition.petition_id }}"
-                            class="mt-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                    <button type="submit" class="mt-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
                         Submit Response
                     </button>
                 </form>
@@ -47,61 +46,42 @@
 
 <script>
     $(document).ready(function() {
-        // Handle threshold update form submission
-        $('#threshold-form').on('submit', function(e) {
-            e.preventDefault();
-
+        $('#threshold-form').on('submit', function(event) {
+            event.preventDefault();
+            
             $.ajax({
                 url: "{% url 'update_threshold' %}",
                 type: 'POST',
-                headers: {
-                    'X-CSRFToken': $('input[name=csrfmiddlewaretoken]').val(),
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                data: {
-                    'signature_threshold': $('input[name="signature_threshold"]').val()
-                },
+                data: $(this).serialize(),
                 success: function(response) {
                     if (response.status === 'success') {
-                        $('#success-message').text("Threshold updated successfully!").removeClass('hidden');
+                        $('#success-message')
+                            .removeClass('hidden')
+                            .text('Threshold updated successfully')
+                            .fadeIn()
+                            .delay(3000)
+                            .fadeOut();
+                        
+                        // Fetch updated petitions
+                        $.ajax({
+                            url: "{% url 'admin_dashboard' %}",
+                            type: 'GET',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            success: function(data) {
+                                $('#threshold-petitions').html(data);
+                            },
+                            error: function(xhr) {
+                                alert('Error fetching updated petitions.');
+                            }
+                        });
                     } else {
-                        $('#success-message').text("Error updating threshold.").removeClass('hidden').css('color', 'red');
+                        alert('Error updating threshold.');
                     }
                 },
                 error: function(xhr) {
-                    console.log(xhr);
-                    $('#success-message').text("An error occurred while updating the threshold.").removeClass('hidden').css('color', 'red');
-                }
-            });
-        });
-
-        // Handle response submission for petitions
-        $('.response-form').on('submit', function(e) {
-            e.preventDefault();
-            const form = $(this);
-            const petitionId = form.data('petition-id');
-
-            $.ajax({
-                url: `/slpp/petitions/admin/petition/response/${petitionId}/`,
-                type: 'POST',
-                headers: {
-                    'X-CSRFToken': form.find('input[name=csrfmiddlewaretoken]').val(),
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                data: {
-                    'response': form.find('textarea[name="response"]').val()
-                },
-                success: function(response) {
-                    if (response.status === 'success') {
-                        $('#response-message').text("Response submitted successfully!").removeClass('hidden');
-                        location.reload(); // Refresh the page to show updated status
-                    } else {
-                        $('#response-message').text("Error submitting response.").removeClass('hidden').css('color', 'red');
-                    }
-                },
-                error: function(xhr) {
-                    console.log(xhr);
-                    $('#response-message').text("An error occurred while submitting the response.").removeClass('hidden').css('color', 'red');
+                    alert('An error occurred: ' + xhr.responseText);
                 }
             });
         });

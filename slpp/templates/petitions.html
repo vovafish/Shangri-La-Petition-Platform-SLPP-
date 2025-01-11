@@ -26,7 +26,11 @@
                 <p class="text-gray-700"><strong>Signatures:</strong> <span class="signature-count">{{ petition.signature_count }}</span></p>
 
                 {% if petition.status|lower == "open" %}
-                    {% if request.session.petitioner_email %}
+                    {% if request.session.admin_email %}
+                        <button class="px-4 py-2 rounded bg-gray-300 cursor-not-allowed mt-4" disabled>
+                            Admins cannot sign
+                        </button>
+                    {% elif request.session.petitioner_email %}
                         {% if petition.petitioner_email == request.session.petitioner_email %}
                             <button class="px-4 py-2 rounded bg-gray-300 cursor-not-allowed mt-4" disabled>
                                 This is your petition

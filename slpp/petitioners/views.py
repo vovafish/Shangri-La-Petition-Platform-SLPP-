@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.contrib import messages
 from django.utils import timezone
 from .models import Petitioners
-from petitions.models import BioID
+from petitions.models import BioID, Petition
 from .forms import RegistrationForm, LoginForm
 from django.contrib.auth.hashers import make_password, check_password
 
@@ -89,4 +89,12 @@ def logout(request):
     return redirect('login')
 
 def home(request):
-    return render(request, 'home.html')  # Render your home.html template
+    open_petition_count = Petition.objects.filter(status='open').count()
+    total_signatures = sum(petition.signature_count for petition in Petition.objects.all())
+
+    context = {
+        'open_petition_count': open_petition_count,
+        'total_signatures': total_signatures,
+    }
+    
+    return render(request, 'home.html', context)

@@ -111,15 +111,20 @@ def admin_dashboard(request):
 
     # Get petitions that reached threshold
     threshold_petitions = Petition.objects.filter(
-    signature_count__gte=threshold,
-    status='open'
-    ).select_related() 
+        signature_count__gte=threshold,
+        status='open'
+    ).select_related()
+
+    # Check if it's an AJAX request
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render(request, 'partials/threshold_petitions.html', {
+            'threshold_petitions': threshold_petitions
+        })
 
     return render(request, 'admin_dashboard.html', {
         'threshold': threshold,
         'threshold_petitions': threshold_petitions
     })
-
 @jwt_required
 def update_threshold(request):
     if request.method == 'POST':
